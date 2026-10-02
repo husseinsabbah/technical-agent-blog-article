@@ -50,5 +50,10 @@ class BlogAgentWorkflowTests(unittest.TestCase):
         self.assertIn("cleanup, stale responses", blog_writer.instruction)
         self.assertIn("flag undefined", blog_reviewer.instruction)
 
+    def test_agents_adapt_to_explicitly_selected_audience(self):
+        self.assertIn("intended audience", blog_planner.instruction)
+        self.assertIn("explicitly selected audience", blog_writer.instruction)
+        self.assertIn("explicitly selected audience", blog_reviewer.instruction)
+
 if __name__ == "__main__":
     unittest.main()

@@ -25,4 +25,6 @@
 - [ ] Ajouter au CV une description précise des fonctionnalités effectivement testées.
 
 ## 5. Extensions futures
-- [ ] Recueillir les thèmes, sujets et produits à intégrer après la première version.
+- [x] Ajouter Design, Impression, Librairie, Jeux et jouets, IA et Construction avec des sous-catégories courantes.
+- [ ] Recueillir les autres thèmes, sujets et produits à intégrer plus tard.
+- [ ] Compléter les taxonomies avec les sous-catégories et produits spécifiques souhaités.

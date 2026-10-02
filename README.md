@@ -1,6 +1,17 @@
 # Technical Blog Agent
 
-A local multi-agent blog-writing workflow built with Google ADK and Gemini. The current version is focused on technical articles for software engineers.
+A local multi-agent article-writing workflow built with Google ADK, Gemini, and Streamlit. Choose a subject category and matching subcategory before entering a specific topic or angle.
+
+## Categories
+
+- Design
+- Printing
+- Bookstores
+- Games and toys
+- AI
+- Construction
+
+Each category has a curated list of common subcategories and an `Other` option. A separate audience selector ranges from curious readers and beginners to practitioners, specialists, and project decision-makers. The lists are starting taxonomies, not exhaustive catalogs.
 
 ## What it does
 
@@ -42,7 +53,9 @@ From the repository root, start the local Streamlit app:
 py -m streamlit run streamlit_app.py
 ```
 
-The app opens at `http://localhost:8501`. Enter a technical topic to get the outline, article, and reviewer report. Each generation makes three model requests. The session keeps up to 20 results in memory, lets you select a past result, and can download an article as Markdown. This history is temporary and is lost when the browser tab or server session ends.
+The app opens at `http://localhost:8501`. Choose a category, subcategory, and intended audience, enter a specific topic or angle, then generate the outline, article, and reviewer report. The default audience is curious readers. Each generation makes three model requests. The session keeps up to 20 results in memory, lets you select a past result, and can download an article as Markdown. This history is temporary and is lost when the browser tab or server session ends.
+
+Category-specific prompts ask the reviewer to flag claims that may depend on local regulations, safety standards, equipment, or rapidly changing products. The reviewer does not browse external sources; verify high-impact claims before publishing.
 
 The ADK development UI is also available when debugging the underlying agents:
 
