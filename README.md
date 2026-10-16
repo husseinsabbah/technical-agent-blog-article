@@ -41,6 +41,10 @@ Copy `blog_agent/.env.example` to `blog_agent/.env`, then put your key in the ne
 GOOGLE_API_KEY=your_key_here
 ```
 
+On Streamlit Community Cloud (where the gitignored `.env` is absent) the app
+instead reads `GOOGLE_API_KEY` from Streamlit secrets — see the *Deploy on
+Streamlit Community Cloud* section below.
+
 Never commit `.env` or share its contents. The root `.gitignore` excludes `.env` files and ADK local state. If a key is exposed, revoke it and create a replacement.
 
 The model is configured by `MODEL` in `blog_agent/agent.py`.
@@ -78,6 +82,35 @@ If PowerShell cannot find `adk`, reopen the terminal after installation or run `
 ```powershell
 py -c "import sysconfig; print(sysconfig.get_path('scripts'))"
 ```
+
+## Deploy on Streamlit Community Cloud
+
+The repo is deployment-ready: `streamlit_app.py` sits at the root and
+`requirements.txt` lists the dependencies. Because `blog_agent/.env` is
+gitignored, the deployed app reads `GOOGLE_API_KEY` from Streamlit secrets
+(fallback: local `.env`).
+
+1. Push the repo to GitHub (done).
+2. Go to <https://share.streamlit.io>, sign in with GitHub, and click *Create app*.
+3. Pick the repo `husseinsabbah/technical-agent-blog-article`, branch `main`,
+   and main file `streamlit_app.py`.
+4. In the app settings (or later, via *Settings* → *Secrets*), paste:
+
+   ```toml
+   GOOGLE_API_KEY = "your_gemini_api_key"
+   ```
+
+5. Deploy. The app gets a public URL of the form
+   `https://<app-name>.streamlitapp.com`.
+
+Notes:
+- Each visitor's history is in-memory (`InMemorySessionService`) and is lost on
+  restart, exactly as in local mode.
+- The public URL is unauthenticated; anyone with the link can trigger Gemini
+  calls on your key. For real traffic, guard it (password / SSO via your
+  workspace) and watch your quota — see *Quota and retries* below.
+- `.streamlit/config.toml` (theme) is committed; `secrets.toml` is not, and a
+  `.streamlit/secrets.toml.example` template is provided.
 
 ## Tests
 

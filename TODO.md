@@ -17,6 +17,7 @@
 - [x] Ajouter une interface locale pour générer, consulter l’historique et télécharger plan/article/revue.
 - [x] Rechercher automatiquement les médias de chaque paragraphe (images Wikimedia Commons réelles + liens de recherche YouTube, Google Images et Commons) dans l'onglet Médias, avec gestion des erreurs par section.
 - [x] Fiabiliser les appels HTTPS Commons via le bundle `certifi` (contourne les certificats expirés des magasins Windows).
+- [x] Rendre le déploiement possible sur Streamlit Community Cloud (clé lue via `st.secrets` avec repli `.env` local).
 - [ ] Déployer le backend sur Google Cloud Run.
 - [ ] Protéger la démo et limiter les appels pour éviter les abus et les coûts imprévus.
 

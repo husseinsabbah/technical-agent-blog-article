@@ -140,15 +140,37 @@ def build_blog_request(
     )
 
 
+def _load_api_key() -> str:
+    """Load GOOGLE_API_KEY from the local .env or Streamlit secrets.
+
+    Locally the key lives in blog_agent/.env (gitignored). On Streamlit
+    Community Cloud the .env file is absent, so the key is read from
+    st.secrets instead. Raises RuntimeError when neither source provides it.
+    """
+    load_dotenv(AGENT_ENV)
+    api_key = os.getenv("GOOGLE_API_KEY", "").strip()
+    if api_key:
+        return api_key
+    try:
+        api_key = str(st.secrets["GOOGLE_API_KEY"]).strip()
+    except Exception:
+        api_key = ""
+    if not api_key:
+        raise RuntimeError(
+            "GOOGLE_API_KEY est introuvable. Ajoutez-la dans blog_agent/.env "
+            "(local) ou dans les secrets Streamlit (déploiement)."
+        )
+    os.environ["GOOGLE_API_KEY"] = api_key
+    return api_key
+
+
 def generate_blog(
     category: str,
     subcategory: str,
     audience: str,
     topic: str,
 ) -> dict[str, str]:
-    load_dotenv(AGENT_ENV)
-    if not os.getenv("GOOGLE_API_KEY"):
-        raise RuntimeError("GOOGLE_API_KEY est absente de blog_agent/.env.")
+    _load_api_key()
 
     async def run_workflow() -> dict[str, str]:
         session_service = InMemorySessionService()
