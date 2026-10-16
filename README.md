@@ -25,7 +25,7 @@ The reviewer is another language-model pass, not a source-backed fact checker. I
 
 - Python 3.10 or newer
 - A Gemini API key from Google AI Studio
-- Google ADK for Python and Streamlit
+- Google ADK for Python, Streamlit, and `certifi` (trusted CA bundle for the Commons media search)
 
 Install the dependencies from the repository root:
 
@@ -54,6 +54,8 @@ py -m streamlit run streamlit_app.py
 ```
 
 The app opens at `http://localhost:8501`. Choose a category, subcategory, and intended audience, enter a specific topic or angle, then generate the outline, article, and reviewer report. The default audience is curious readers. Each generation makes three model requests. The session keeps up to 20 results in memory, lets you select a past result, and can download an article as Markdown. This history is temporary and is lost when the browser tab or server session ends.
+
+After each generation, the app automatically searches Wikimedia Commons for images related to each article section (H2 headings, capped at six sections) and builds pre-filled search links for YouTube videos, Google Images, and Commons media per section. The **Médias** tab shows the per-section results; the links remain available as a fallback when a Commons search fails, and a button reruns the media search for articles generated before this feature. No YouTube API key or extra dependency is required. Open each media file's source link to check its license and attribution requirements before reuse.
 
 Category-specific prompts ask the reviewer to flag claims that may depend on local regulations, safety standards, equipment, or rapidly changing products. The reviewer does not browse external sources; verify high-impact claims before publishing.
 

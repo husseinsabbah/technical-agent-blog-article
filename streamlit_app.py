@@ -11,6 +11,7 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 from blog_agent.agent import root_agent
+from blog_agent.media import collect_article_media
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -251,10 +252,20 @@ if submitted:
                     "created_at": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
                     "outputs": result,
                 }
-                history = st.session_state["generation_history"]
-                history.insert(0, entry)
-                del history[MAX_HISTORY_ITEMS:]
-                st.session_state["history_selection"] = generation_id
+            with st.spinner(
+                "Recherche des images et vidéos liées aux paragraphes…"
+            ):
+                try:
+                    entry["media"] = collect_article_media(
+                        result["blog_post"],
+                        topic.strip(),
+                    )
+                except Exception:
+                    entry["media"] = []
+            history = st.session_state["generation_history"]
+            history.insert(0, entry)
+            del history[MAX_HISTORY_ITEMS:]
+            st.session_state["history_selection"] = generation_id
         except Exception as error:
             message = str(error)
             if "429" in message or "RESOURCE_EXHAUSTED" in message:
@@ -298,7 +309,9 @@ if history:
         f"{selected_entry.get('audience', 'Public non précisé')} · "
         f"Généré le {selected_entry['created_at']}"
     )
-    plan_tab, article_tab, review_tab = st.tabs(["Plan", "Article", "Revue"])
+    plan_tab, article_tab, review_tab, media_tab = st.tabs(
+        ["Plan", "Article", "Revue", "Médias"]
+    )
 
     with plan_tab:
         if generation["blog_outline"]:
@@ -333,3 +346,67 @@ if history:
                 st.info(review)
         else:
             st.warning("Aucun rapport de revue n’a été retourné.")
+
+    with media_tab:
+        st.caption(
+            "Images Wikimedia Commons et liens de recherche YouTube, Google Images "
+            "et Commons générés automatiquement pour chaque paragraphe de l’article. "
+            "Ouvre la page de chaque fichier pour consulter sa licence et ses crédits."
+        )
+        media_sections = selected_entry.get("media")
+
+        def refresh_article_media():
+            selected_entry["media"] = collect_article_media(
+                generation["blog_post"],
+                selected_entry["topic"],
+            )
+
+        if not media_sections:
+            if generation["blog_post"] and st.button(
+                "Rechercher les médias de cet article",
+                key="collect_article_media",
+                icon=":material/image_search:",
+            ):
+                refresh_article_media()
+                st.rerun()
+            else:
+                st.info("Aucune recherche médias n’a été effectuée pour cet article.")
+
+        if media_sections:
+            for section in media_sections:
+                st.subheader(section["heading"])
+                st.caption(section["query"])
+                if section.get("paragraph"):
+                    st.markdown(section["paragraph"])
+                if section.get("error"):
+                    st.warning(
+                        f"Images Commons indisponibles pour cette section : "
+                        f"{section['error']}"
+                    )
+                section_images = section.get("images", [])
+                if section_images:
+                    image_columns = st.columns(min(len(section_images), 3))
+                    for index, image in enumerate(section_images):
+                        with image_columns[index % len(image_columns)]:
+                            st.image(
+                                image["thumbnail_url"],
+                                caption=image["title"],
+                                alt=image["title"],
+                                width="stretch",
+                            )
+                            st.markdown(
+                                f"[Source et licence]({image['description_url']})"
+                            )
+                links = section["links"]
+                st.markdown(
+                    f"[▶ Vidéos YouTube]({links['youtube']}) · "
+                    f"[Images Google]({links['google_images']}) · "
+                    f"[Images Commons]({links['commons']})"
+                )
+            if st.button(
+                "Relancer la recherche des médias",
+                key="refresh_article_media",
+                icon=":material/refresh:",
+            ):
+                refresh_article_media()
+                st.rerun()
